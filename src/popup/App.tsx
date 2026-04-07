@@ -19,6 +19,15 @@ export default function App() {
   const volumeRef = useRef(0.8);
 
   useEffect(() => {
+    // Restore normal icon whenever the user opens the popup
+    chrome.action.setIcon({
+      path: {
+        "16": "icons/icon-16.png",
+        "48": "icons/icon-48.png",
+        "128": "icons/icon-128.png",
+      },
+    });
+
     loadNudges().then(setNudges);
     chrome.storage.local.get("nudge-volume").then((r) => {
       const v = r["nudge-volume"] as number | undefined;
@@ -114,7 +123,8 @@ export default function App() {
 
       <p className="text-xs text-zinc-400 dark:text-zinc-500 leading-relaxed">
         Add a Nudge for anything you want to stay on top of. Each one plays a
-        ping at your set interval, even when the popup is closed. Test out the
+        ping at your set interval, even when the popup is closed. Nudges pause
+        when you close the browser and resume when you come back. Test out the
         volume below or you're in for a surprise!
       </p>
 
