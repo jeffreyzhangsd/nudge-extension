@@ -75,7 +75,7 @@ const NORMAL_PATHS = {
   "128": "icons/icon-128.png",
 };
 
-export async function setActionIcon(paused: boolean): Promise<void> {
+async function setActionIcon(paused: boolean): Promise<void> {
   if (!paused) {
     void chrome.action.setIcon({ path: NORMAL_PATHS });
     return;
@@ -149,7 +149,7 @@ async function checkAndFireNudges(): Promise<void> {
 
   const updated: Nudge[] = nudges.map((n) => {
     if (n.status === "active" && n.nextFireAt <= now) {
-      void fireNudge(n.label, volume);
+      void fireNudge(n.id, n.label, volume);
       return { ...n, nextFireAt: now + n.intervalMinutes * 60 * 1000 };
     }
     return n;
@@ -160,9 +160,11 @@ async function checkAndFireNudges(): Promise<void> {
   chrome.runtime.sendMessage({ type: "nudges-updated" }).catch(() => {});
 }
 
-async function fireNudge(label: string, volume: number): Promise<void> {
+async function fireNudge(id: string, label: string, volume: number): Promise<void> {
   await playPingOffscreen(volume);
-  chrome.notifications.create({
+  // Use a per-nudge ID so repeated fires replace the previous notification
+  // rather than stacking new ones in the notification center.
+  chrome.notifications.create(`nudge-${id}`, {
     type: "basic",
     iconUrl: "icons/icon-128.png",
     title: "Nudge",
@@ -170,6 +172,13 @@ async function fireNudge(label: string, volume: number): Promise<void> {
     silent: true,
   });
 }
+
+// Open the popup when the user clicks any nudge notification.
+chrome.notifications.onClicked.addListener((notificationId) => {
+  if (notificationId.startsWith("nudge-")) {
+    chrome.action.openPopup().catch(() => {});
+  }
+});
 
 async function playPingOffscreen(volume: number): Promise<void> {
   const offscreenUrl = chrome.runtime.getURL("offscreen.html");

@@ -7,6 +7,9 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
     outDir: "dist",
+    // Disable the modulepreload polyfill — it injects an inline <script> that
+    // violates MV3's strict Content Security Policy.
+    modulePreload: { polyfill: false },
     rollupOptions: {
       input: {
         popup: resolve(__dirname, "popup.html"),
