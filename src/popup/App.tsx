@@ -22,7 +22,10 @@ export default function App() {
     loadNudges().then(setNudges);
     chrome.storage.local.get("nudge-volume").then((r) => {
       const v = r["nudge-volume"] as number | undefined;
-      if (v != null) { setVolume(v); volumeRef.current = v; }
+      if (v != null) {
+        setVolume(v);
+        volumeRef.current = v;
+      }
     });
 
     // Refresh nudges whenever the background fires one
@@ -41,7 +44,11 @@ export default function App() {
     return () => clearInterval(tick);
   }, []);
 
-  async function handleAdd(label: string, intervalMinutes: NudgeInterval, note?: string) {
+  async function handleAdd(
+    label: string,
+    intervalMinutes: NudgeInterval,
+    note?: string,
+  ) {
     const nudge = createNudge(label, intervalMinutes, note);
     const updated = [...nudges, nudge];
     setNudges(updated);
@@ -56,10 +63,20 @@ export default function App() {
 
     let toggled: Nudge;
     if (nudge.status === "paused") {
-      const remaining = nudge.pausedRemaining ?? nudge.intervalMinutes * 60 * 1000;
-      toggled = { ...nudge, status: "active", nextFireAt: Date.now() + remaining, pausedRemaining: undefined };
+      const remaining =
+        nudge.pausedRemaining ?? nudge.intervalMinutes * 60 * 1000;
+      toggled = {
+        ...nudge,
+        status: "active",
+        nextFireAt: Date.now() + remaining,
+        pausedRemaining: undefined,
+      };
     } else {
-      toggled = { ...nudge, status: "paused", pausedRemaining: Math.max(0, nudge.nextFireAt - Date.now()) };
+      toggled = {
+        ...nudge,
+        status: "paused",
+        pausedRemaining: Math.max(0, nudge.nextFireAt - Date.now()),
+      };
     }
 
     const updated = updateNudge(nudges, toggled);
@@ -82,7 +99,9 @@ export default function App() {
   return (
     <div className="bg-zinc-50 dark:bg-zinc-950 px-4 pt-5 pb-4 flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">Nudge</h1>
+        <h1 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+          Nudge
+        </h1>
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
@@ -94,8 +113,9 @@ export default function App() {
       </div>
 
       <p className="text-xs text-zinc-400 dark:text-zinc-500 leading-relaxed">
-        Add nudges for anything you want to stay on top of. Each one plays a
-        ping at your set interval — even when the popup is closed.
+        Add a Nudge for anything you want to stay on top of. Each one plays a
+        ping at your set interval, even when the popup is closed. Test out the
+        volume below or you're in for a surprise!
       </p>
 
       {showForm && (

@@ -2,7 +2,13 @@
 
 body {
   width: 360px;
-  min-height: 400px;
   max-height: 580px;
   overflow-y: auto;
+  background-color: #fafafa;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #09090b;
+  }
 }
